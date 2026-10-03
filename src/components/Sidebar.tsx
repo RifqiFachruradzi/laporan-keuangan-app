@@ -16,7 +16,9 @@ import {
   Activity, 
   PieChart, 
   FileText,
-  ListTree
+  ListTree,
+  CalendarClock,
+  Hourglass
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -26,6 +28,8 @@ const routes = [
   { name: 'Jurnal Entry', path: '/jurnal', icon: BookOpen },
   { name: 'Buku Besar', path: '/buku-besar', icon: Library },
   { name: 'Buku Pembantu', path: '/buku-pembantu', icon: BookMinus },
+  { name: 'Aging Piutang', path: '/aging-piutang', icon: CalendarClock },
+  { name: 'Aging Hutang', path: '/aging-hutang', icon: Hourglass },
   { name: 'Neraca Saldo', path: '/neraca-saldo', icon: Scale },
   { name: 'Neraca Lajur', path: '/neraca-lajur', icon: FileSpreadsheet },
   { name: 'Jurnal Penyesuaian', path: '/jurnal-adjustment', icon: Edit3 },

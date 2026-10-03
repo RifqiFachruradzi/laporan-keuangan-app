@@ -36,3 +36,17 @@ export interface Journal {
   type: JournalType;
   entries: JournalEntryLine[];
 }
+
+export type AgingKind = 'receivable' | 'payable';
+
+export interface AgingItem {
+  id: string;
+  date: string;
+  dueDate: string;
+  description: string;
+  amount: number;
+  outstanding: number;
+  age: number;
+  // 0: not yet due, 1: 1-30, 2: 31-60, 3: 61-90, 4: > 90 days overdue
+  bucket: number;
+}
