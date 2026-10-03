@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Trash2 } from 'lucide-react';
 import { formatRupiah } from '@/lib/accounting-utils';
-import { JournalType } from '@/types';
+import { Journal, JournalType } from '@/types';
 
 interface JournalListProps {
   type: JournalType;
@@ -20,15 +20,17 @@ export default function JournalList({ type, title }: JournalListProps) {
   const [search, setSearch] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Running balance per account (previous balance + debit - credit), in
-  // chronological order across all journals so it matches the ledger
+  // Debit lines first, then credit lines
+  const orderedEntries = (journal: Journal) => [...journal.entries].sort((a, b) => b.debit - a.debit);
+
+  // Running balance over every line of this journal type in date order:
+  // previous balance + debit - credit
   const balanceAfter = new Map<string, number>();
-  const running = new Map<string, number>();
-  for (const journal of journals) {
-    for (const entry of journal.entries) {
-      const balance = (running.get(entry.accountId) ?? 0) + entry.debit - entry.credit;
-      running.set(entry.accountId, balance);
-      balanceAfter.set(entry.id, balance);
+  let running = 0;
+  for (const journal of journals.filter(j => j.type === type)) {
+    for (const entry of orderedEntries(journal)) {
+      running += entry.debit - entry.credit;
+      balanceAfter.set(entry.id, running);
     }
   }
 
@@ -85,16 +87,11 @@ export default function JournalList({ type, title }: JournalListProps) {
               </TableRow>
             ) : (
               list.map(journal => {
-                const totalDebit = journal.entries.reduce((sum, e) => sum + e.debit, 0);
-                const totalCredit = journal.entries.reduce((sum, e) => sum + e.credit, 0);
-                // Debit lines first, then credit lines
-                const entries = [...journal.entries].sort((a, b) => b.debit - a.debit);
+                const entries = orderedEntries(journal);
                 return (
                   <Fragment key={journal.id}>
                     <TableRow className="border-t-2 border-slate-200 bg-white hover:bg-white">
-                      <TableCell />
-                      <TableCell className="font-mono font-medium text-emerald-700">{journal.documentNumber ?? '-'}</TableCell>
-                      <TableCell colSpan={5} className="whitespace-normal font-medium text-slate-900">
+                      <TableCell colSpan={7} className="whitespace-normal font-medium text-slate-900">
                         {journal.description}
                       </TableCell>
                       <TableCell className="text-right">
@@ -117,7 +114,7 @@ export default function JournalList({ type, title }: JournalListProps) {
                       return (
                         <TableRow key={entry.id} className="text-slate-600">
                           <TableCell>{journal.date}</TableCell>
-                          <TableCell />
+                          <TableCell className="font-mono text-emerald-700">{journal.documentNumber ?? '-'}</TableCell>
                           <TableCell className="font-mono">
                             {acc ? acc.subCode || acc.code : '-'}
                           </TableCell>
@@ -133,14 +130,6 @@ export default function JournalList({ type, title }: JournalListProps) {
                         </TableRow>
                       );
                     })}
-                    <TableRow className="text-slate-900 hover:bg-transparent">
-                      <TableCell colSpan={4} className="text-right text-xs uppercase tracking-wide text-slate-500">
-                        Total
-                      </TableCell>
-                      <TableCell className="text-right font-semibold">{formatRupiah(totalDebit)}</TableCell>
-                      <TableCell className="text-right font-semibold">{formatRupiah(totalCredit)}</TableCell>
-                      <TableCell colSpan={2} />
-                    </TableRow>
                   </Fragment>
                 );
               })
