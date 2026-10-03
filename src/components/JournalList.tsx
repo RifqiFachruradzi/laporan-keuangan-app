@@ -87,12 +87,12 @@ export default function JournalList({ type, title }: JournalListProps) {
               list.map(journal => {
                 const totalDebit = journal.entries.reduce((sum, e) => sum + e.debit, 0);
                 const totalCredit = journal.entries.reduce((sum, e) => sum + e.credit, 0);
-                // Debit lines first, then credit lines (indented), as in a written journal
+                // Debit lines first, then credit lines
                 const entries = [...journal.entries].sort((a, b) => b.debit - a.debit);
                 return (
                   <Fragment key={journal.id}>
                     <TableRow className="border-t-2 border-slate-200 bg-white hover:bg-white">
-                      <TableCell className="font-medium text-slate-900">{journal.date}</TableCell>
+                      <TableCell />
                       <TableCell className="font-mono font-medium text-emerald-700">{journal.documentNumber ?? '-'}</TableCell>
                       <TableCell colSpan={5} className="whitespace-normal font-medium text-slate-900">
                         {journal.description}
@@ -116,12 +116,12 @@ export default function JournalList({ type, title }: JournalListProps) {
                       const isCredit = entry.credit > 0;
                       return (
                         <TableRow key={entry.id} className="text-slate-600">
+                          <TableCell>{journal.date}</TableCell>
                           <TableCell />
-                          <TableCell />
-                          <TableCell className={isCredit ? 'pl-8 font-mono' : 'font-mono'}>
+                          <TableCell className="font-mono">
                             {acc ? acc.subCode || acc.code : '-'}
                           </TableCell>
-                          <TableCell className={isCredit ? 'pl-8 whitespace-normal' : 'whitespace-normal'}>
+                          <TableCell className="whitespace-normal">
                             {acc ? acc.subName || acc.name : 'Akun tidak ditemukan'}
                           </TableCell>
                           <TableCell className="text-right">{entry.debit > 0 ? formatRupiah(entry.debit) : '-'}</TableCell>
