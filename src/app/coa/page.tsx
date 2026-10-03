@@ -92,7 +92,7 @@ export default function CoaPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <div className="space-y-2">
-                <Label>Kode Akun (9 digit)</Label>
+                <Label>Account Number (9 digit)</Label>
                 <Input
                   value={code}
                   onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 9))}
@@ -100,12 +100,12 @@ export default function CoaPage() {
                   inputMode="numeric"
                   required
                 />
-                {code && !isCodeValid && <p className="text-xs text-red-500">Kode harus 9 digit angka.</p>}
-                {isDuplicate && <p className="text-xs text-red-500">Kode sudah digunakan.</p>}
+                {code && !isCodeValid && <p className="text-xs text-red-500">Account Number harus 9 digit angka.</p>}
+                {isDuplicate && <p className="text-xs text-red-500">Account Number sudah digunakan.</p>}
               </div>
               <div className="space-y-2">
-                <Label>Nama Akun</Label>
-                <Input value={name} onChange={e => setName(e.target.value)} placeholder="Nama akun..." required />
+                <Label>Account Name</Label>
+                <Input value={name} onChange={e => setName(e.target.value)} placeholder="Account name..." required />
               </div>
               <div className="space-y-2">
                 <Label>Tipe</Label>
@@ -172,8 +172,8 @@ export default function CoaPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Kode</TableHead>
-                <TableHead>Nama Akun</TableHead>
+                <TableHead>Account Number</TableHead>
+                <TableHead>Account Name</TableHead>
                 <TableHead>Tipe</TableHead>
                 <TableHead>Sub Type</TableHead>
                 <TableHead>Saldo Normal</TableHead>
