@@ -73,7 +73,7 @@ export default function Sidebar() {
         <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-400">AMS</p>
         <h1 className="mt-1 text-lg font-semibold leading-tight text-white">Accounting Management System</h1>
       </div>
-      <nav className="flex-1 overflow-y-auto px-3 pb-4 space-y-5">
+      <nav className="flex-1 overflow-y-auto px-3 pb-4 space-y-5 [scrollbar-width:thin] [scrollbar-color:rgb(51_65_85)_transparent]">
         {sections.map(section => (
           <div key={section.title}>
             <p className="px-3 pb-1.5 text-[11px] font-semibold tracking-wider uppercase text-slate-500">{section.title}</p>
