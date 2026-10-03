@@ -8,9 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trash2, Plus } from 'lucide-react';
-import { JournalType, JournalEntryLine } from '@/types';
+import { Account, JournalType, JournalEntryLine } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
-import { formatAccountLabel, formatAccountName, formatAccountNumber } from '@/lib/accounting-utils';
 
 interface JournalFormProps {
   type: JournalType;
@@ -19,14 +18,32 @@ interface JournalFormProps {
 
 export default function JournalForm({ type, title }: JournalFormProps) {
   const { accounts, addJournal } = useAppContext();
+  // Journal lines show the sub account; accounts without one fall back to the main account
+  const subNumber = (acc: Account) => acc.subCode || acc.code;
+  const subName = (acc: Account) => acc.subName || acc.name;
   const accountNumber = (id: string) => {
     const acc = accounts.find(a => a.id === id);
-    return acc ? formatAccountNumber(acc) : '';
+    return acc ? subNumber(acc) : '';
   };
   const accountName = (id: string) => {
     const acc = accounts.find(a => a.id === id);
-    return acc ? formatAccountName(acc) : '';
+    return acc ? subName(acc) : '';
   };
+
+  const accountOptions = (
+    <SelectContent align="start" alignItemWithTrigger={false} className="w-auto min-w-[28rem]">
+      <div className="sticky top-0 z-10 flex gap-2 border-b bg-popover py-1.5 pr-8 pl-1.5 text-xs font-semibold text-slate-500">
+        <span className="w-32 shrink-0">Sub Account Number</span>
+        <span>Sub Account Name</span>
+      </div>
+      {accounts.map(acc => (
+        <SelectItem key={acc.id} value={acc.id}>
+          <span className="w-32 shrink-0 font-mono">{subNumber(acc)}</span>
+          <span>{subName(acc)}</span>
+        </SelectItem>
+      ))}
+    </SelectContent>
+  );
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [description, setDescription] = useState('');
   
@@ -106,8 +123,8 @@ export default function JournalForm({ type, title }: JournalFormProps) {
 
           <div className="space-y-4">
             <div className="grid grid-cols-12 gap-4 text-sm font-medium text-slate-500 px-2">
-              <div className="col-span-2">Account Number</div>
-              <div className="col-span-4">Account Name</div>
+              <div className="col-span-2">Sub Account Number</div>
+              <div className="col-span-4">Sub Account Name</div>
               <div className="col-span-2">Debit</div>
               <div className="col-span-2">Credit</div>
               <div className="col-span-2 text-center">Action</div>
@@ -124,13 +141,7 @@ export default function JournalForm({ type, title }: JournalFormProps) {
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Number" />
                     </SelectTrigger>
-                    <SelectContent>
-                      {accounts.map(acc => (
-                        <SelectItem key={acc.id} value={acc.id}>
-                          {formatAccountLabel(acc)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
+                    {accountOptions}
                   </Select>
                 </div>
                 <div className="col-span-4">
@@ -140,15 +151,9 @@ export default function JournalForm({ type, title }: JournalFormProps) {
                     itemToStringLabel={(val) => accountName(val as string)}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select account name" />
+                      <SelectValue placeholder="Select sub account name" />
                     </SelectTrigger>
-                    <SelectContent>
-                      {accounts.map(acc => (
-                        <SelectItem key={acc.id} value={acc.id}>
-                          {formatAccountName(acc)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
+                    {accountOptions}
                   </Select>
                 </div>
                 <div className="col-span-2">
