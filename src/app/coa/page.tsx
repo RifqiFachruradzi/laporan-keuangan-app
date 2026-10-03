@@ -58,17 +58,17 @@ export default function CoaPage() {
     setNormalBalance('Debit');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isValid) return;
+    if (!isValid || isSaving) return;
 
     const account = { code, subCode: subCode || undefined, name: name.trim(), subName: subName.trim() || undefined, type, subType, normalBalance, description: description.trim() || undefined };
-    if (editingId) {
-      updateAccount(editingId, account);
-    } else {
-      addAccount(account);
-    }
-    resetForm();
+    setIsSaving(true);
+    const saved = editingId ? await updateAccount(editingId, account) : await addAccount(account);
+    setIsSaving(false);
+    if (saved) resetForm();
   };
 
   const handleEdit = (acc: Account) => {
@@ -84,9 +84,9 @@ export default function CoaPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = (id: string, label: string) => {
+  const handleDelete = async (id: string, label: string) => {
     if (confirm(`Hapus akun ${label}?`)) {
-      deleteAccount(id);
+      await deleteAccount(id);
       if (editingId === id) resetForm();
     }
   };
@@ -180,7 +180,7 @@ export default function CoaPage() {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button type="submit" disabled={!isValid}>
+              <Button type="submit" disabled={!isValid || isSaving}>
                 {editingId ? (
                   <><Save className="w-4 h-4 mr-2" /> Simpan Perubahan</>
                 ) : (

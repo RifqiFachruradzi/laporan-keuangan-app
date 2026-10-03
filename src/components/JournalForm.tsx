@@ -54,16 +54,21 @@ export default function JournalForm({ type, title }: JournalFormProps) {
   
   const isValid = isBalanced && date && description && lines.every(l => l.accountId);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isValid) return;
+  const [isSaving, setIsSaving] = useState(false);
 
-    addJournal({
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isValid || isSaving) return;
+
+    setIsSaving(true);
+    const saved = await addJournal({
       date,
       description,
       type,
       entries: lines as JournalEntryLine[]
     });
+    setIsSaving(false);
+    if (!saved) return;
 
     // Reset
     setDescription('');
@@ -158,8 +163,8 @@ export default function JournalForm({ type, title }: JournalFormProps) {
           </div>
 
           <div className="pt-4">
-            <Button type="submit" className="w-full" disabled={!isValid}>
-              Save Journal Entry
+            <Button type="submit" className="w-full" disabled={!isValid || isSaving}>
+              {isSaving ? 'Saving...' : 'Save Journal Entry'}
             </Button>
           </div>
         </form>

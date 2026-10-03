@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Accounting Management System
 
-## Getting Started
+Aplikasi laporan keuangan (jurnal, buku besar, neraca saldo, aging piutang/hutang, dan laporan keuangan) berbasis Next.js dengan login dan database [Supabase](https://supabase.com).
 
-First, run the development server:
+## Setup Supabase
+
+1. Buat project baru di [supabase.com](https://supabase.com/dashboard).
+2. Buka **SQL Editor → New query**, salin seluruh isi [`supabase/schema.sql`](supabase/schema.sql), lalu klik **Run**.
+   Ini membuat tabel `accounts`, `journals`, dan `journal_entries` beserta Row Level Security, sehingga setiap pengguna hanya bisa melihat datanya sendiri.
+3. Buka **Authentication → URL Configuration**:
+   - **Site URL**: alamat aplikasi, mis. `https://nama-app.vercel.app` (atau `http://localhost:3000` saat development).
+   - **Redirect URLs**: tambahkan `https://nama-app.vercel.app/auth/callback` dan `http://localhost:3000/auth/callback`.
+4. Ambil **Project URL** dan **Publishable key** (atau `anon` key) dari tombol **Connect** / **Project Settings → API Keys**.
+
+## Environment variables
+
+Salin `.env.example` menjadi `.env.local` dan isi:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxxxxxxxxxxx
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Saat deploy (mis. Vercel), isi variabel yang sama di **Project Settings → Environment Variables**, lalu redeploy.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Menjalankan
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+npm run dev
+```
 
-## Learn More
+Buka [http://localhost:3000](http://localhost:3000). Semua halaman membutuhkan login; daftar akun baru lewat halaman **Daftar**.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Saat pertama kali login, aplikasi otomatis membuat Chart of Accounts bawaan. Jika browser tersebut masih menyimpan data lama (versi sebelum database, di localStorage), akun dan jurnal itu dipindahkan ke database sekali, dan salinannya disimpan sebagai `accounts-backup` / `journals-backup` di localStorage.

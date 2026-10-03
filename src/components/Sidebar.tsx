@@ -18,8 +18,10 @@ import {
   FileText,
   ListTree,
   CalendarClock,
-  Hourglass
+  Hourglass,
+  LogOut
 } from 'lucide-react';
+import { useAppContext } from '@/context/AppContext';
 import { clsx } from 'clsx';
 
 const routes = [
@@ -43,6 +45,7 @@ const routes = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { user, signOut } = useAppContext();
 
   return (
     <aside className="w-64 bg-slate-900 text-slate-100 h-full flex flex-col">
@@ -73,6 +76,19 @@ export default function Sidebar() {
           })}
         </ul>
       </nav>
+      {user && (
+        <div className="border-t border-slate-800 p-4">
+          <p className="truncate px-3 text-xs text-slate-400" title={user.email}>{user.email}</p>
+          <button
+            type="button"
+            onClick={signOut}
+            className="mt-2 flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-slate-800 hover:text-slate-100"
+          >
+            <LogOut className="w-4 h-4" />
+            Keluar
+          </button>
+        </div>
+      )}
     </aside>
   );
 }
