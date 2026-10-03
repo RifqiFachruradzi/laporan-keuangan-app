@@ -31,6 +31,9 @@ export interface JournalEntryLine {
 
 export interface Journal {
   id: string;
+  // Generated on save, e.g. JU-202610-0001
+  documentNumber?: string;
+  createdAt?: string;
   date: string;
   description: string;
   type: JournalType;

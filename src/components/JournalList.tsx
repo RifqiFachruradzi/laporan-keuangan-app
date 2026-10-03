@@ -20,10 +20,27 @@ export default function JournalList({ type, title }: JournalListProps) {
   const [search, setSearch] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  // Running balance per account (previous balance + debit - credit), in
+  // chronological order across all journals so it matches the ledger
+  const balanceAfter = new Map<string, number>();
+  const running = new Map<string, number>();
+  for (const journal of journals) {
+    for (const entry of journal.entries) {
+      const balance = (running.get(entry.accountId) ?? 0) + entry.debit - entry.credit;
+      running.set(entry.accountId, balance);
+      balanceAfter.set(entry.id, balance);
+    }
+  }
+
   const query = search.trim().toLowerCase();
   const list = journals
     .filter(j => j.type === type)
-    .filter(j => !query || j.description.toLowerCase().includes(query) || j.date.includes(query))
+    .filter(j =>
+      !query ||
+      j.description.toLowerCase().includes(query) ||
+      j.date.includes(query) ||
+      (j.documentNumber ?? '').toLowerCase().includes(query)
+    )
     .slice()
     .reverse();
 
@@ -41,7 +58,7 @@ export default function JournalList({ type, title }: JournalListProps) {
         <Input
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder="Cari keterangan atau tanggal..."
+          placeholder="Cari no. dokumen, keterangan, atau tanggal..."
           className="max-w-xs"
         />
       </CardHeader>
@@ -50,17 +67,19 @@ export default function JournalList({ type, title }: JournalListProps) {
           <TableHeader>
             <TableRow className="bg-slate-50 hover:bg-slate-50">
               <TableHead>Tanggal</TableHead>
+              <TableHead>No. Dokumen</TableHead>
               <TableHead>Sub Account Number</TableHead>
               <TableHead>Sub Account Name</TableHead>
               <TableHead className="text-right">Debit</TableHead>
               <TableHead className="text-right">Credit</TableHead>
+              <TableHead className="text-right">Saldo</TableHead>
               <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
           <TableBody>
             {list.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-8 text-center text-slate-500">
+                <TableCell colSpan={8} className="py-8 text-center text-slate-500">
                   {query ? 'Tidak ada jurnal yang cocok.' : 'Belum ada jurnal yang disimpan.'}
                 </TableCell>
               </TableRow>
@@ -74,7 +93,8 @@ export default function JournalList({ type, title }: JournalListProps) {
                   <Fragment key={journal.id}>
                     <TableRow className="border-t-2 border-slate-200 bg-white hover:bg-white">
                       <TableCell className="font-medium text-slate-900">{journal.date}</TableCell>
-                      <TableCell colSpan={4} className="whitespace-normal font-medium text-slate-900">
+                      <TableCell className="font-mono font-medium text-emerald-700">{journal.documentNumber ?? '-'}</TableCell>
+                      <TableCell colSpan={5} className="whitespace-normal font-medium text-slate-900">
                         {journal.description}
                       </TableCell>
                       <TableCell className="text-right">
@@ -97,6 +117,7 @@ export default function JournalList({ type, title }: JournalListProps) {
                       return (
                         <TableRow key={entry.id} className="text-slate-600">
                           <TableCell />
+                          <TableCell />
                           <TableCell className={isCredit ? 'pl-8 font-mono' : 'font-mono'}>
                             {acc ? acc.subCode || acc.code : '-'}
                           </TableCell>
@@ -105,17 +126,20 @@ export default function JournalList({ type, title }: JournalListProps) {
                           </TableCell>
                           <TableCell className="text-right">{entry.debit > 0 ? formatRupiah(entry.debit) : '-'}</TableCell>
                           <TableCell className="text-right">{isCredit ? formatRupiah(entry.credit) : '-'}</TableCell>
+                          <TableCell className="text-right font-medium text-slate-900">
+                            {formatRupiah(balanceAfter.get(entry.id) ?? 0)}
+                          </TableCell>
                           <TableCell />
                         </TableRow>
                       );
                     })}
                     <TableRow className="text-slate-900 hover:bg-transparent">
-                      <TableCell colSpan={3} className="text-right text-xs uppercase tracking-wide text-slate-500">
+                      <TableCell colSpan={4} className="text-right text-xs uppercase tracking-wide text-slate-500">
                         Total
                       </TableCell>
                       <TableCell className="text-right font-semibold">{formatRupiah(totalDebit)}</TableCell>
                       <TableCell className="text-right font-semibold">{formatRupiah(totalCredit)}</TableCell>
-                      <TableCell />
+                      <TableCell colSpan={2} />
                     </TableRow>
                   </Fragment>
                 );

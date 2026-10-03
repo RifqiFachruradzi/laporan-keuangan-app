@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 import { Account, AccountType, Journal, JournalType, NormalBalance, accountSubTypes } from '@/types';
 import { createClient } from '@/lib/supabase/client';
+import { nextDocumentNumber } from '@/lib/accounting-utils';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 
 // Seeded into the database the first time a user logs in
@@ -48,6 +49,8 @@ interface AccountRow {
 
 interface JournalRow {
   id: string;
+  document_number: string | null;
+  created_at: string;
   date: string;
   description: string;
   type: JournalType;
@@ -55,7 +58,7 @@ interface JournalRow {
 }
 
 const ACCOUNT_COLUMNS = 'id, code, sub_code, name, sub_name, type, sub_type, normal_balance, description';
-const JOURNAL_COLUMNS = 'id, date, description, type, journal_entries(id, account_id, debit, credit)';
+const JOURNAL_COLUMNS = 'id, document_number, created_at, date, description, type, journal_entries(id, account_id, debit, credit)';
 
 const toAccountRow = (a: NewAccount) => ({
   code: a.code,
@@ -82,6 +85,8 @@ const fromAccountRow = (r: AccountRow): Account => ({
 
 const fromJournalRow = (r: JournalRow): Journal => ({
   id: r.id,
+  documentNumber: r.document_number ?? undefined,
+  createdAt: r.created_at,
   date: r.date,
   description: r.description,
   type: r.type,
@@ -98,7 +103,9 @@ const accountKey = (a: { code: string; subCode?: string }) => `${a.code}|${a.sub
 const compareAccounts = (a: Account, b: Account) =>
   a.code.localeCompare(b.code) || (a.subCode ?? '').localeCompare(b.subCode ?? '');
 
-const compareJournals = (a: Journal, b: Journal) => a.date.localeCompare(b.date);
+// Chronological: by date, then by the order they were entered
+const compareJournals = (a: Journal, b: Journal) =>
+  a.date.localeCompare(b.date) || (a.createdAt ?? '').localeCompare(b.createdAt ?? '');
 
 const reportError = (action: string, error: { message: string } | null) => {
   if (!error) return false;
@@ -136,15 +143,19 @@ async function seedInitialData(supabase: SupabaseClient) {
   const newIdByKey = new Map((inserted as AccountRow[]).map(r => [accountKey(fromAccountRow(r)), r.id]));
   const newIdByOldId = new Map(sourceAccounts.map(a => [a.id, newIdByKey.get(accountKey(a))]));
 
-  for (const journal of legacyJournals) {
+  const assignedNumbers: string[] = [];
+  for (const journal of [...legacyJournals].sort((a, b) => a.date.localeCompare(b.date))) {
     const entries = journal.entries
       .map(e => ({ account_id: newIdByOldId.get(e.accountId), debit: e.debit, credit: e.credit }))
       .filter(e => e.account_id);
     if (entries.length === 0) continue;
 
+    const documentNumber = nextDocumentNumber(assignedNumbers, journal.type, journal.date);
+    assignedNumbers.push(documentNumber);
+
     const { data: row, error: journalError } = await supabase
       .from('journals')
-      .insert({ date: journal.date, description: journal.description, type: journal.type })
+      .insert({ document_number: documentNumber, date: journal.date, description: journal.description, type: journal.type })
       .select('id')
       .single();
     if (journalError) throw journalError;
@@ -240,11 +251,25 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const addJournal = async (journal: Omit<Journal, 'id'>) => {
     if (!supabase) return false;
-    const { data: row, error } = await supabase
-      .from('journals')
-      .insert({ date: journal.date, description: journal.description, type: journal.type })
-      .select('id')
-      .single();
+
+    const insertJournal = (existing: Journal[]) =>
+      supabase
+        .from('journals')
+        .insert({
+          document_number: nextDocumentNumber(existing.map(j => j.documentNumber), journal.type, journal.date),
+          date: journal.date,
+          description: journal.description,
+          type: journal.type,
+        })
+        .select('id')
+        .single();
+
+    let { data: row, error } = await insertJournal(journals);
+    if (error?.code === '23505') {
+      // Number taken (e.g. saved from another tab): refresh and take the next one
+      const { data: latest } = await supabase.from('journals').select(JOURNAL_COLUMNS);
+      ({ data: row, error } = await insertJournal(((latest ?? []) as JournalRow[]).map(fromJournalRow)));
+    }
     if (reportError('Gagal menyimpan jurnal', error) || !row) return false;
 
     const { error: entriesError } = await supabase.from('journal_entries').insert(

@@ -7,6 +7,21 @@ export const formatAccountName = (account: Pick<Account, 'name' | 'subName'>) =>
 export const formatAccountLabel = (account: Pick<Account, 'code' | 'subCode' | 'name' | 'subName'>) =>
   `${formatAccountNumber(account)} - ${formatAccountName(account)}`;
 
+export const documentPrefix: Record<JournalType, string> = {
+  Standard: 'JU',
+  Adjustment: 'JP',
+  Elimination: 'JE',
+};
+
+// Next document number for the journal type and month, e.g. JU-202610-0003
+export const nextDocumentNumber = (existing: (string | undefined)[], type: JournalType, date: string) => {
+  const prefix = `${documentPrefix[type]}-${date.slice(0, 4)}${date.slice(5, 7)}-`;
+  const last = existing
+    .filter((n): n is string => !!n && n.startsWith(prefix))
+    .reduce((max, n) => Math.max(max, Number(n.slice(prefix.length)) || 0), 0);
+  return `${prefix}${String(last + 1).padStart(4, '0')}`;
+};
+
 export const formatRupiah = (amount: number) => {
   const formatter = new Intl.NumberFormat('id-ID', {
     style: 'currency',
