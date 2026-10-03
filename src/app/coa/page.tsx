@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Pencil, Plus, Save, Trash2, X } from 'lucide-react';
-import { Account, AccountType, NormalBalance } from '@/types';
+import { Account, AccountType, NormalBalance, accountSubTypes } from '@/types';
 
 const accountTypes: AccountType[] = ['Asset', 'Liability', 'Equity', 'Revenue', 'Expense'];
 
@@ -28,6 +28,7 @@ export default function CoaPage() {
   const [code, setCode] = useState('');
   const [name, setName] = useState('');
   const [type, setType] = useState<AccountType>('Asset');
+  const [subType, setSubType] = useState(accountSubTypes.Asset[0]);
   const [normalBalance, setNormalBalance] = useState<NormalBalance>('Debit');
 
   const isCodeValid = /^\d{9}$/.test(code);
@@ -36,6 +37,7 @@ export default function CoaPage() {
 
   const handleTypeChange = (val: AccountType) => {
     setType(val);
+    setSubType(accountSubTypes[val][0]);
     setNormalBalance(defaultNormalBalance[val]);
   };
 
@@ -44,6 +46,7 @@ export default function CoaPage() {
     setCode('');
     setName('');
     setType('Asset');
+    setSubType(accountSubTypes.Asset[0]);
     setNormalBalance('Debit');
   };
 
@@ -51,7 +54,7 @@ export default function CoaPage() {
     e.preventDefault();
     if (!isValid) return;
 
-    const account = { code, name: name.trim(), type, normalBalance };
+    const account = { code, name: name.trim(), type, subType, normalBalance };
     if (editingId) {
       updateAccount(editingId, account);
     } else {
@@ -65,6 +68,7 @@ export default function CoaPage() {
     setCode(acc.code);
     setName(acc.name);
     setType(acc.type);
+    setSubType(acc.subType);
     setNormalBalance(acc.normalBalance);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -86,7 +90,7 @@ export default function CoaPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <div className="space-y-2">
                 <Label>Kode Akun (9 digit)</Label>
                 <Input
@@ -112,6 +116,19 @@ export default function CoaPage() {
                   <SelectContent>
                     {accountTypes.map(t => (
                       <SelectItem key={t} value={t}>{t}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Sub Type</Label>
+                <Select value={subType} onValueChange={(val) => val && setSubType(val as string)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {accountSubTypes[type].map(st => (
+                      <SelectItem key={st} value={st}>{st}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -158,6 +175,7 @@ export default function CoaPage() {
                 <TableHead>Kode</TableHead>
                 <TableHead>Nama Akun</TableHead>
                 <TableHead>Tipe</TableHead>
+                <TableHead>Sub Type</TableHead>
                 <TableHead>Saldo Normal</TableHead>
                 <TableHead className="text-center">Aksi</TableHead>
               </TableRow>
@@ -176,6 +194,7 @@ export default function CoaPage() {
                       )}
                     </TableCell>
                     <TableCell><Badge variant="secondary">{acc.type}</Badge></TableCell>
+                    <TableCell>{acc.subType}</TableCell>
                     <TableCell>{acc.normalBalance}</TableCell>
                     <TableCell>
                       <div className="flex justify-center gap-1">

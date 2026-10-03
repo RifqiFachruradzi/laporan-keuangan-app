@@ -1,31 +1,31 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Account, Journal, JournalType } from '@/types';
+import { Account, Journal, JournalType, accountSubTypes } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
 const defaultAccounts: Account[] = [
-  { id: '1', code: '111000000', name: 'Cash', type: 'Asset', normalBalance: 'Debit' },
-  { id: '2', code: '112000000', name: 'Accounts Receivable', type: 'Asset', normalBalance: 'Debit' },
-  { id: '3', code: '113000000', name: 'Inventory', type: 'Asset', normalBalance: 'Debit' },
-  { id: '4', code: '121000000', name: 'Equipment', type: 'Asset', normalBalance: 'Debit' },
-  { id: '5', code: '122000000', name: 'Accumulated Depreciation', type: 'Asset', normalBalance: 'Credit' },
+  { id: '1', code: '111000000', name: 'Cash', type: 'Asset', subType: 'Aset Lancar', normalBalance: 'Debit' },
+  { id: '2', code: '112000000', name: 'Accounts Receivable', type: 'Asset', subType: 'Aset Lancar', normalBalance: 'Debit' },
+  { id: '3', code: '113000000', name: 'Inventory', type: 'Asset', subType: 'Aset Lancar', normalBalance: 'Debit' },
+  { id: '4', code: '121000000', name: 'Equipment', type: 'Asset', subType: 'Aset Tidak Lancar', normalBalance: 'Debit' },
+  { id: '5', code: '122000000', name: 'Accumulated Depreciation', type: 'Asset', subType: 'Aset Tidak Lancar', normalBalance: 'Credit' },
   
-  { id: '6', code: '211000000', name: 'Accounts Payable', type: 'Liability', normalBalance: 'Credit' },
-  { id: '7', code: '212000000', name: 'Accrued Expenses', type: 'Liability', normalBalance: 'Credit' },
-  { id: '8', code: '221000000', name: 'Long-term Debt', type: 'Liability', normalBalance: 'Credit' },
+  { id: '6', code: '211000000', name: 'Accounts Payable', type: 'Liability', subType: 'Liabilitas Jangka Pendek', normalBalance: 'Credit' },
+  { id: '7', code: '212000000', name: 'Accrued Expenses', type: 'Liability', subType: 'Liabilitas Jangka Pendek', normalBalance: 'Credit' },
+  { id: '8', code: '221000000', name: 'Long-term Debt', type: 'Liability', subType: 'Liabilitas Jangka Panjang', normalBalance: 'Credit' },
   
-  { id: '9', code: '311000000', name: 'Common Stock', type: 'Equity', normalBalance: 'Credit' },
-  { id: '10', code: '312000000', name: 'Retained Earnings', type: 'Equity', normalBalance: 'Credit' },
-  { id: '11', code: '313000000', name: 'Dividends', type: 'Equity', normalBalance: 'Debit' },
+  { id: '9', code: '311000000', name: 'Common Stock', type: 'Equity', subType: 'Modal', normalBalance: 'Credit' },
+  { id: '10', code: '312000000', name: 'Retained Earnings', type: 'Equity', subType: 'Saldo Laba', normalBalance: 'Credit' },
+  { id: '11', code: '313000000', name: 'Dividends', type: 'Equity', subType: 'Prive / Dividen', normalBalance: 'Debit' },
   
-  { id: '12', code: '411000000', name: 'Sales Revenue', type: 'Revenue', normalBalance: 'Credit' },
-  { id: '13', code: '412000000', name: 'Service Revenue', type: 'Revenue', normalBalance: 'Credit' },
+  { id: '12', code: '411000000', name: 'Sales Revenue', type: 'Revenue', subType: 'Pendapatan Usaha', normalBalance: 'Credit' },
+  { id: '13', code: '412000000', name: 'Service Revenue', type: 'Revenue', subType: 'Pendapatan Usaha', normalBalance: 'Credit' },
   
-  { id: '14', code: '511000000', name: 'Cost of Goods Sold', type: 'Expense', normalBalance: 'Debit' },
-  { id: '15', code: '512000000', name: 'Salaries Expense', type: 'Expense', normalBalance: 'Debit' },
-  { id: '16', code: '513000000', name: 'Rent Expense', type: 'Expense', normalBalance: 'Debit' },
-  { id: '17', code: '514000000', name: 'Depreciation Expense', type: 'Expense', normalBalance: 'Debit' },
+  { id: '14', code: '511000000', name: 'Cost of Goods Sold', type: 'Expense', subType: 'Beban Pokok Penjualan', normalBalance: 'Debit' },
+  { id: '15', code: '512000000', name: 'Salaries Expense', type: 'Expense', subType: 'Beban Operasional', normalBalance: 'Debit' },
+  { id: '16', code: '513000000', name: 'Rent Expense', type: 'Expense', subType: 'Beban Operasional', normalBalance: 'Debit' },
+  { id: '17', code: '514000000', name: 'Depreciation Expense', type: 'Expense', subType: 'Beban Operasional', normalBalance: 'Debit' },
 ];
 
 interface AppContextType {
@@ -58,7 +58,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const savedAccounts = localStorage.getItem('accounts');
     if (savedAccounts) {
       try {
-        setAccounts(JSON.parse(savedAccounts));
+        const parsed: Account[] = JSON.parse(savedAccounts);
+        // Accounts saved before Sub Type existed get a default one
+        setAccounts(parsed.map(a => ({
+          ...a,
+          subType:
+            a.subType ||
+            defaultAccounts.find(d => d.id === a.id)?.subType ||
+            accountSubTypes[a.type][0],
+        })));
       } catch (e) {
         console.error('Failed to parse accounts', e);
       }
