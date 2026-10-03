@@ -204,7 +204,7 @@ export default function CoaPage() {
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow>
+              <TableRow className="bg-slate-100 hover:bg-slate-100 [&_th]:font-semibold [&_th]:text-slate-700">
                 <TableHead className="whitespace-normal">Account Number</TableHead>
                 <TableHead className="whitespace-normal">Sub Account Number</TableHead>
                 <TableHead className="whitespace-normal">Account Name</TableHead>
