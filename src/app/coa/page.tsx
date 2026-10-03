@@ -165,10 +165,16 @@ export default function CoaPage() {
             <TableBody>
               {accounts.map(acc => {
                 const used = isAccountUsed(acc.id);
+                const isEditing = editingId === acc.id;
                 return (
-                  <TableRow key={acc.id} className={editingId === acc.id ? 'bg-emerald-50' : undefined}>
-                    <TableCell className="font-mono">{acc.code}</TableCell>
-                    <TableCell>{acc.name}</TableCell>
+                  <TableRow key={acc.id} className={isEditing ? 'bg-emerald-100 hover:bg-emerald-100' : undefined}>
+                    <TableCell className={isEditing ? 'font-mono border-l-4 border-emerald-500' : 'font-mono'}>{acc.code}</TableCell>
+                    <TableCell>
+                      {acc.name}
+                      {isEditing && (
+                        <Badge className="ml-2 bg-emerald-600 text-white">Sedang diedit</Badge>
+                      )}
+                    </TableCell>
                     <TableCell><Badge variant="secondary">{acc.type}</Badge></TableCell>
                     <TableCell>{acc.normalBalance}</TableCell>
                     <TableCell>
