@@ -72,6 +72,7 @@ export default function JournalList({ type, title }: JournalListProps) {
               <TableHead>No. Dokumen</TableHead>
               <TableHead>Sub Account Number</TableHead>
               <TableHead>Sub Account Name</TableHead>
+              <TableHead>Description</TableHead>
               <TableHead className="text-right">Debit</TableHead>
               <TableHead className="text-right">Credit</TableHead>
               <TableHead className="text-right">Saldo</TableHead>
@@ -81,7 +82,7 @@ export default function JournalList({ type, title }: JournalListProps) {
           <TableBody>
             {list.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="py-8 text-center text-slate-500">
+                <TableCell colSpan={9} className="py-8 text-center text-slate-500">
                   {query ? 'Tidak ada jurnal yang cocok.' : 'Belum ada jurnal yang disimpan.'}
                 </TableCell>
               </TableRow>
@@ -90,29 +91,14 @@ export default function JournalList({ type, title }: JournalListProps) {
                 const entries = orderedEntries(journal);
                 return (
                   <Fragment key={journal.id}>
-                    <TableRow className="border-t-2 border-slate-200 bg-white hover:bg-white">
-                      <TableCell colSpan={7} className="whitespace-normal font-medium text-slate-900">
-                        {journal.description}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-sm"
-                          className="text-red-500"
-                          title="Hapus jurnal"
-                          disabled={deletingId === journal.id}
-                          onClick={() => handleDelete(journal.id, journal.description)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                    {entries.map(entry => {
+                    {entries.map((entry, i) => {
                       const acc = accounts.find(a => a.id === entry.accountId);
                       const isCredit = entry.credit > 0;
                       return (
-                        <TableRow key={entry.id} className="text-slate-600">
+                        <TableRow
+                          key={entry.id}
+                          className={i === 0 ? 'border-t-2 border-slate-200 text-slate-600' : 'text-slate-600'}
+                        >
                           <TableCell>{journal.date}</TableCell>
                           <TableCell className="font-mono text-emerald-700">{journal.documentNumber ?? '-'}</TableCell>
                           <TableCell className="font-mono">
@@ -121,12 +107,27 @@ export default function JournalList({ type, title }: JournalListProps) {
                           <TableCell className="whitespace-normal">
                             {acc ? acc.subName || acc.name : 'Akun tidak ditemukan'}
                           </TableCell>
+                          <TableCell className="whitespace-normal">{journal.description}</TableCell>
                           <TableCell className="text-right">{entry.debit > 0 ? formatRupiah(entry.debit) : '-'}</TableCell>
                           <TableCell className="text-right">{isCredit ? formatRupiah(entry.credit) : '-'}</TableCell>
                           <TableCell className="text-right font-medium text-slate-900">
                             {formatRupiah(balanceAfter.get(entry.id) ?? 0)}
                           </TableCell>
-                          <TableCell />
+                          <TableCell className="text-right">
+                            {i === 0 && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon-sm"
+                                className="text-red-500"
+                                title="Hapus jurnal"
+                                disabled={deletingId === journal.id}
+                                onClick={() => handleDelete(journal.id, journal.description)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </TableCell>
                         </TableRow>
                       );
                     })}
