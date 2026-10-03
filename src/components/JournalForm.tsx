@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trash2, Plus } from 'lucide-react';
 import { JournalType, JournalEntryLine } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
-import { formatAccountName, formatAccountNumber } from '@/lib/accounting-utils';
+import { formatAccountLabel } from '@/lib/accounting-utils';
 
 interface JournalFormProps {
   type: JournalType;
@@ -19,6 +19,10 @@ interface JournalFormProps {
 
 export default function JournalForm({ type, title }: JournalFormProps) {
   const { accounts, addJournal } = useAppContext();
+  const accountLabel = (id: string) => {
+    const acc = accounts.find(a => a.id === id);
+    return acc ? formatAccountLabel(acc) : '';
+  };
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [description, setDescription] = useState('');
   
@@ -107,14 +111,18 @@ export default function JournalForm({ type, title }: JournalFormProps) {
             {lines.map((line, index) => (
               <div key={line.id} className="grid grid-cols-12 gap-4 items-center">
                 <div className="col-span-6">
-                  <Select value={line.accountId} onValueChange={(val) => updateLine(line.id!, 'accountId', val || '')}>
+                  <Select
+                    value={line.accountId}
+                    onValueChange={(val) => updateLine(line.id!, 'accountId', val || '')}
+                    itemToStringLabel={(val) => accountLabel(val as string)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select account" />
                     </SelectTrigger>
                     <SelectContent>
                       {accounts.map(acc => (
                         <SelectItem key={acc.id} value={acc.id}>
-                          {formatAccountNumber(acc)} - {formatAccountName(acc)}
+                          {formatAccountLabel(acc)}
                         </SelectItem>
                       ))}
                     </SelectContent>

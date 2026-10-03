@@ -5,7 +5,7 @@ import { useAppContext } from '@/context/AppContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { formatRupiah, calculateNetBalance, formatAccountName, formatAccountNumber } from '@/lib/accounting-utils';
+import { formatRupiah, calculateNetBalance, formatAccountLabel } from '@/lib/accounting-utils';
 
 export default function BukuBesarPage() {
   const { accounts, journals } = useAppContext();
@@ -36,14 +36,21 @@ export default function BukuBesarPage() {
           <CardTitle>Select Account</CardTitle>
         </CardHeader>
         <CardContent>
-          <Select value={selectedAccountId} onValueChange={(val) => setSelectedAccountId(val || '')}>
+          <Select
+            value={selectedAccountId}
+            onValueChange={(val) => setSelectedAccountId(val || '')}
+            itemToStringLabel={(val) => {
+              const acc = accounts.find(a => a.id === val);
+              return acc ? formatAccountLabel(acc) : '';
+            }}
+          >
             <SelectTrigger className="w-[300px]">
               <SelectValue placeholder="Choose an account" />
             </SelectTrigger>
             <SelectContent>
               {accounts.map(acc => (
                 <SelectItem key={acc.id} value={acc.id}>
-                  {formatAccountNumber(acc)} - {formatAccountName(acc)}
+                  {formatAccountLabel(acc)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -54,7 +61,7 @@ export default function BukuBesarPage() {
       {selectedAccount && (
         <Card>
           <CardHeader>
-            <CardTitle>{formatAccountNumber(selectedAccount)} - {formatAccountName(selectedAccount)} ({selectedAccount.normalBalance} Balance)</CardTitle>
+            <CardTitle>{formatAccountLabel(selectedAccount)} ({selectedAccount.normalBalance} Balance)</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>

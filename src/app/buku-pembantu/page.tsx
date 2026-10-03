@@ -27,7 +27,14 @@ export default function BukuPembantuPage() {
           <CardTitle>Select Sub-Ledger</CardTitle>
         </CardHeader>
         <CardContent>
-          <Select value={selectedSub} onValueChange={(val) => setSelectedSub(val || '')}>
+          <Select
+            value={selectedSub}
+            onValueChange={(val) => setSelectedSub(val || '')}
+            itemToStringLabel={(val) => {
+              const s = subLedgers.find(x => x.id === val);
+              return s ? `${s.type} - ${s.name}` : '';
+            }}
+          >
             <SelectTrigger className="w-[300px]">
               <SelectValue placeholder="Choose a sub-ledger" />
             </SelectTrigger>
