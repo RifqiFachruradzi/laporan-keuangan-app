@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Pencil, Plus, Save, Trash2, X } from 'lucide-react';
-import { formatAccountNumber } from '@/lib/accounting-utils';
+import { formatAccountName, formatAccountNumber } from '@/lib/accounting-utils';
 import { Account, AccountType, NormalBalance, accountSubTypes } from '@/types';
 
 const accountTypes: AccountType[] = ['Asset', 'Liability', 'Equity', 'Revenue', 'Expense'];
@@ -29,6 +29,7 @@ export default function CoaPage() {
   const [code, setCode] = useState('');
   const [subCode, setSubCode] = useState('');
   const [name, setName] = useState('');
+  const [subName, setSubName] = useState('');
   const [type, setType] = useState<AccountType>('Asset');
   const [subType, setSubType] = useState(accountSubTypes.Asset[0]);
   const [normalBalance, setNormalBalance] = useState<NormalBalance>('Debit');
@@ -48,6 +49,7 @@ export default function CoaPage() {
     setCode('');
     setSubCode('');
     setName('');
+    setSubName('');
     setType('Asset');
     setSubType(accountSubTypes.Asset[0]);
     setNormalBalance('Debit');
@@ -57,7 +59,7 @@ export default function CoaPage() {
     e.preventDefault();
     if (!isValid) return;
 
-    const account = { code, subCode: subCode || undefined, name: name.trim(), type, subType, normalBalance };
+    const account = { code, subCode: subCode || undefined, name: name.trim(), subName: subName.trim() || undefined, type, subType, normalBalance };
     if (editingId) {
       updateAccount(editingId, account);
     } else {
@@ -71,6 +73,7 @@ export default function CoaPage() {
     setCode(acc.code);
     setSubCode(acc.subCode ?? '');
     setName(acc.name);
+    setSubName(acc.subName ?? '');
     setType(acc.type);
     setSubType(acc.subType);
     setNormalBalance(acc.normalBalance);
@@ -94,7 +97,7 @@ export default function CoaPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="space-y-2">
                 <Label>Account Number (9 digit)</Label>
                 <Input
@@ -119,6 +122,10 @@ export default function CoaPage() {
               <div className="space-y-2">
                 <Label>Account Name</Label>
                 <Input value={name} onChange={e => setName(e.target.value)} placeholder="Account name..." required />
+              </div>
+              <div className="space-y-2">
+                <Label>Sub Account Name</Label>
+                <Input value={subName} onChange={e => setSubName(e.target.value)} placeholder="Opsional, mis. Kas Kecil" />
               </div>
               <div className="space-y-2">
                 <Label>Tipe</Label>
@@ -187,7 +194,8 @@ export default function CoaPage() {
               <TableRow>
                 <TableHead className="whitespace-normal">Account Number</TableHead>
                 <TableHead className="whitespace-normal">Sub Account Number</TableHead>
-                <TableHead>Account Name</TableHead>
+                <TableHead className="whitespace-normal">Account Name</TableHead>
+                <TableHead className="whitespace-normal">Sub Account Name</TableHead>
                 <TableHead>Tipe</TableHead>
                 <TableHead>Sub Type</TableHead>
                 <TableHead className="whitespace-normal">Saldo Normal</TableHead>
@@ -202,12 +210,13 @@ export default function CoaPage() {
                   <TableRow key={acc.id} className={isEditing ? 'bg-emerald-100 hover:bg-emerald-100' : undefined}>
                     <TableCell className={isEditing ? 'font-mono border-l-4 border-emerald-500' : 'font-mono'}>{acc.code}</TableCell>
                     <TableCell className="font-mono">{acc.subCode || '-'}</TableCell>
-                    <TableCell>
+                    <TableCell className="whitespace-normal">
                       {acc.name}
                       {isEditing && (
                         <Badge className="ml-2 bg-emerald-600 text-white">Sedang diedit</Badge>
                       )}
                     </TableCell>
+                    <TableCell className="whitespace-normal">{acc.subName || '-'}</TableCell>
                     <TableCell><Badge variant="secondary">{acc.type}</Badge></TableCell>
                     <TableCell>{acc.subType}</TableCell>
                     <TableCell>{acc.normalBalance}</TableCell>
@@ -229,7 +238,7 @@ export default function CoaPage() {
                           className="text-red-500"
                           disabled={used}
                           title={used ? 'Akun sudah dipakai di jurnal, tidak bisa dihapus' : 'Hapus akun'}
-                          onClick={() => handleDelete(acc.id, `${formatAccountNumber(acc)} - ${acc.name}`)}
+                          onClick={() => handleDelete(acc.id, `${formatAccountNumber(acc)} - ${formatAccountName(acc)}`)}
                         >
                           <Trash2 className="w-4 h-4" /> Delete
                         </Button>

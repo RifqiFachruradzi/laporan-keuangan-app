@@ -15,6 +15,7 @@ export interface Account {
   code: string;
   subCode?: string;
   name: string;
+  subName?: string;
   type: AccountType;
   subType: string;
   normalBalance: NormalBalance;

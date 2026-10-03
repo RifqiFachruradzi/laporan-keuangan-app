@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trash2, Plus } from 'lucide-react';
 import { JournalType, JournalEntryLine } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
-import { formatAccountNumber } from '@/lib/accounting-utils';
+import { formatAccountName, formatAccountNumber } from '@/lib/accounting-utils';
 
 interface JournalFormProps {
   type: JournalType;
@@ -109,7 +109,7 @@ export default function JournalForm({ type, title }: JournalFormProps) {
                     <SelectContent>
                       {accounts.map(acc => (
                         <SelectItem key={acc.id} value={acc.id}>
-                          {formatAccountNumber(acc)} - {acc.name}
+                          {formatAccountNumber(acc)} - {formatAccountName(acc)}
                         </SelectItem>
                       ))}
                     </SelectContent>

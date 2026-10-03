@@ -3,7 +3,7 @@
 import { useAppContext } from '@/context/AppContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { calculateAccountBalances, calculateNetBalance, formatAccountNumber, formatRupiah } from '@/lib/accounting-utils';
+import { calculateAccountBalances, calculateNetBalance, formatAccountName, formatAccountNumber, formatRupiah } from '@/lib/accounting-utils';
 
 export default function NeracaSaldoPage() {
   const { accounts, journals } = useAppContext();
@@ -49,7 +49,7 @@ export default function NeracaSaldoPage() {
                 return (
                   <TableRow key={acc.id}>
                     <TableCell>{formatAccountNumber(acc)}</TableCell>
-                    <TableCell>{acc.name}</TableCell>
+                    <TableCell>{formatAccountName(acc)}</TableCell>
                     <TableCell className="text-right">{isDebit ? formatRupiah(absNet) : '-'}</TableCell>
                     <TableCell className="text-right">{!isDebit ? formatRupiah(absNet) : '-'}</TableCell>
                   </TableRow>
