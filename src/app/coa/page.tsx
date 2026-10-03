@@ -5,6 +5,7 @@ import { useAppContext } from '@/context/AppContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,6 +31,7 @@ export default function CoaPage() {
   const [subCode, setSubCode] = useState('');
   const [name, setName] = useState('');
   const [subName, setSubName] = useState('');
+  const [description, setDescription] = useState('');
   const [type, setType] = useState<AccountType>('Asset');
   const [subType, setSubType] = useState(accountSubTypes.Asset[0]);
   const [normalBalance, setNormalBalance] = useState<NormalBalance>('Debit');
@@ -50,6 +52,7 @@ export default function CoaPage() {
     setSubCode('');
     setName('');
     setSubName('');
+    setDescription('');
     setType('Asset');
     setSubType(accountSubTypes.Asset[0]);
     setNormalBalance('Debit');
@@ -59,7 +62,7 @@ export default function CoaPage() {
     e.preventDefault();
     if (!isValid) return;
 
-    const account = { code, subCode: subCode || undefined, name: name.trim(), subName: subName.trim() || undefined, type, subType, normalBalance };
+    const account = { code, subCode: subCode || undefined, name: name.trim(), subName: subName.trim() || undefined, type, subType, normalBalance, description: description.trim() || undefined };
     if (editingId) {
       updateAccount(editingId, account);
     } else {
@@ -74,6 +77,7 @@ export default function CoaPage() {
     setSubCode(acc.subCode ?? '');
     setName(acc.name);
     setSubName(acc.subName ?? '');
+    setDescription(acc.description ?? '');
     setType(acc.type);
     setSubType(acc.subType);
     setNormalBalance(acc.normalBalance);
@@ -165,6 +169,15 @@ export default function CoaPage() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-2 md:col-span-4">
+                <Label>Description</Label>
+                <Textarea
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  placeholder="Opsional, keterangan akun..."
+                  rows={2}
+                />
+              </div>
             </div>
             <div className="flex gap-2">
               <Button type="submit" disabled={!isValid}>
@@ -199,6 +212,7 @@ export default function CoaPage() {
                 <TableHead>Tipe</TableHead>
                 <TableHead>Sub Type</TableHead>
                 <TableHead className="whitespace-normal">Saldo Normal</TableHead>
+                <TableHead>Description</TableHead>
                 <TableHead className="text-center">Aksi</TableHead>
               </TableRow>
             </TableHeader>
@@ -218,8 +232,9 @@ export default function CoaPage() {
                     </TableCell>
                     <TableCell className="whitespace-normal">{acc.subName || '-'}</TableCell>
                     <TableCell><Badge variant="secondary">{acc.type}</Badge></TableCell>
-                    <TableCell>{acc.subType}</TableCell>
+                    <TableCell className="whitespace-normal">{acc.subType}</TableCell>
                     <TableCell>{acc.normalBalance}</TableCell>
+                    <TableCell className="whitespace-normal min-w-32 text-slate-600">{acc.description || '-'}</TableCell>
                     <TableCell>
                       <div className="flex justify-center">
                         <Button

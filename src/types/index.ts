@@ -19,6 +19,7 @@ export interface Account {
   type: AccountType;
   subType: string;
   normalBalance: NormalBalance;
+  description?: string;
 }
 
 export interface JournalEntryLine {
