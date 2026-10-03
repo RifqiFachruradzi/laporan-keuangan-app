@@ -34,6 +34,7 @@ interface AppContextType {
   addJournal: (journal: Omit<Journal, 'id'>) => void;
   deleteJournal: (id: string) => void;
   addAccount: (account: Omit<Account, 'id'>) => void;
+  updateAccount: (id: string, account: Omit<Account, 'id'>) => void;
   deleteAccount: (id: string) => void;
   isAccountUsed: (id: string) => boolean;
 }
@@ -96,6 +97,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  const updateAccount = (id: string, account: Omit<Account, 'id'>) => {
+    setAccounts(prev =>
+      prev.map(a => (a.id === id ? { ...account, id } : a)).sort((a, b) => a.code.localeCompare(b.code))
+    );
+  };
+
   const isAccountUsed = (id: string) =>
     journals.some(j => j.entries.some(e => e.accountId === id));
 
@@ -107,7 +114,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   if (!isLoaded) return null; // Avoid hydration mismatch
 
   return (
-    <AppContext.Provider value={{ accounts, journals, addJournal, deleteJournal, addAccount, deleteAccount, isAccountUsed }}>
+    <AppContext.Provider value={{ accounts, journals, addJournal, deleteJournal, addAccount, updateAccount, deleteAccount, isAccountUsed }}>
       {children}
     </AppContext.Provider>
   );
