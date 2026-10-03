@@ -41,7 +41,7 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-slate-900 text-slate-100 h-full flex flex-col">
       <div className="p-6">
-        <h1 className="text-2xl font-bold text-emerald-400">FinanceApp</h1>
+        <h1 className="text-xl font-bold leading-tight text-emerald-400">Accounting Management System</h1>
       </div>
       <nav className="flex-1 overflow-y-auto px-4 pb-4">
         <ul className="space-y-1">
