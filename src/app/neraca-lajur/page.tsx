@@ -3,7 +3,7 @@
 import { useAppContext } from '@/context/AppContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { calculateAccountBalances, formatRupiah } from '@/lib/accounting-utils';
+import { calculateAccountBalances, formatAccountNumber, formatRupiah } from '@/lib/accounting-utils';
 
 export default function NeracaLajurPage() {
   const { accounts, journals } = useAppContext();
@@ -96,7 +96,7 @@ export default function NeracaLajurPage() {
 
                 return (
                   <TableRow key={acc.id}>
-                    <TableCell>{acc.code} - {acc.name}</TableCell>
+                    <TableCell>{formatAccountNumber(acc)} - {acc.name}</TableCell>
                     <TableCell className="text-right">{tbDebit > 0 ? formatRupiah(tbDebit) : '-'}</TableCell>
                     <TableCell className="text-right">{tbCredit > 0 ? formatRupiah(tbCredit) : '-'}</TableCell>
                     <TableCell className="text-right">{adj.debit > 0 ? formatRupiah(adj.debit) : '-'}</TableCell>

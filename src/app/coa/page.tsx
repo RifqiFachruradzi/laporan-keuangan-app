@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Pencil, Plus, Save, Trash2, X } from 'lucide-react';
+import { formatAccountNumber } from '@/lib/accounting-utils';
 import { Account, AccountType, NormalBalance, accountSubTypes } from '@/types';
 
 const accountTypes: AccountType[] = ['Asset', 'Liability', 'Equity', 'Revenue', 'Expense'];
@@ -26,13 +27,14 @@ export default function CoaPage() {
   const { accounts, addAccount, updateAccount, deleteAccount, isAccountUsed } = useAppContext();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [code, setCode] = useState('');
+  const [subCode, setSubCode] = useState('');
   const [name, setName] = useState('');
   const [type, setType] = useState<AccountType>('Asset');
   const [subType, setSubType] = useState(accountSubTypes.Asset[0]);
   const [normalBalance, setNormalBalance] = useState<NormalBalance>('Debit');
 
   const isCodeValid = /^\d{9}$/.test(code);
-  const isDuplicate = accounts.some(a => a.code === code && a.id !== editingId);
+  const isDuplicate = accounts.some(a => a.code === code && (a.subCode ?? '') === subCode && a.id !== editingId);
   const isValid = isCodeValid && !isDuplicate && name.trim() !== '';
 
   const handleTypeChange = (val: AccountType) => {
@@ -44,6 +46,7 @@ export default function CoaPage() {
   const resetForm = () => {
     setEditingId(null);
     setCode('');
+    setSubCode('');
     setName('');
     setType('Asset');
     setSubType(accountSubTypes.Asset[0]);
@@ -54,7 +57,7 @@ export default function CoaPage() {
     e.preventDefault();
     if (!isValid) return;
 
-    const account = { code, name: name.trim(), type, subType, normalBalance };
+    const account = { code, subCode: subCode || undefined, name: name.trim(), type, subType, normalBalance };
     if (editingId) {
       updateAccount(editingId, account);
     } else {
@@ -66,6 +69,7 @@ export default function CoaPage() {
   const handleEdit = (acc: Account) => {
     setEditingId(acc.id);
     setCode(acc.code);
+    setSubCode(acc.subCode ?? '');
     setName(acc.name);
     setType(acc.type);
     setSubType(acc.subType);
@@ -90,7 +94,7 @@ export default function CoaPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label>Account Number (9 digit)</Label>
                 <Input
@@ -101,7 +105,16 @@ export default function CoaPage() {
                   required
                 />
                 {code && !isCodeValid && <p className="text-xs text-red-500">Account Number harus 9 digit angka.</p>}
-                {isDuplicate && <p className="text-xs text-red-500">Account Number sudah digunakan.</p>}
+                {isDuplicate && <p className="text-xs text-red-500">Account Number dan Sub Account Number sudah digunakan.</p>}
+              </div>
+              <div className="space-y-2">
+                <Label>Sub Account Number</Label>
+                <Input
+                  value={subCode}
+                  onChange={e => setSubCode(e.target.value.replace(/\D/g, '').slice(0, 9))}
+                  placeholder="Opsional, mis. 001"
+                  inputMode="numeric"
+                />
               </div>
               <div className="space-y-2">
                 <Label>Account Name</Label>
@@ -172,11 +185,12 @@ export default function CoaPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Account Number</TableHead>
+                <TableHead className="whitespace-normal">Account Number</TableHead>
+                <TableHead className="whitespace-normal">Sub Account Number</TableHead>
                 <TableHead>Account Name</TableHead>
                 <TableHead>Tipe</TableHead>
                 <TableHead>Sub Type</TableHead>
-                <TableHead>Saldo Normal</TableHead>
+                <TableHead className="whitespace-normal">Saldo Normal</TableHead>
                 <TableHead className="text-center">Aksi</TableHead>
               </TableRow>
             </TableHeader>
@@ -187,6 +201,7 @@ export default function CoaPage() {
                 return (
                   <TableRow key={acc.id} className={isEditing ? 'bg-emerald-100 hover:bg-emerald-100' : undefined}>
                     <TableCell className={isEditing ? 'font-mono border-l-4 border-emerald-500' : 'font-mono'}>{acc.code}</TableCell>
+                    <TableCell className="font-mono">{acc.subCode || '-'}</TableCell>
                     <TableCell>
                       {acc.name}
                       {isEditing && (
@@ -197,11 +212,11 @@ export default function CoaPage() {
                     <TableCell>{acc.subType}</TableCell>
                     <TableCell>{acc.normalBalance}</TableCell>
                     <TableCell>
-                      <div className="flex justify-center gap-1">
+                      <div className="flex justify-center">
                         <Button
                           type="button"
                           variant="ghost"
-                          size="sm"
+                          size="xs"
                           className="text-slate-600"
                           onClick={() => handleEdit(acc)}
                         >
@@ -210,11 +225,11 @@ export default function CoaPage() {
                         <Button
                           type="button"
                           variant="ghost"
-                          size="sm"
+                          size="xs"
                           className="text-red-500"
                           disabled={used}
                           title={used ? 'Akun sudah dipakai di jurnal, tidak bisa dihapus' : 'Hapus akun'}
-                          onClick={() => handleDelete(acc.id, `${acc.code} - ${acc.name}`)}
+                          onClick={() => handleDelete(acc.id, `${formatAccountNumber(acc)} - ${acc.name}`)}
                         >
                           <Trash2 className="w-4 h-4" /> Delete
                         </Button>

@@ -1,3 +1,6 @@
+export const formatAccountNumber = (account: Pick<Account, 'code' | 'subCode'>) =>
+  account.subCode ? `${account.code}-${account.subCode}` : account.code;
+
 export const formatRupiah = (amount: number) => {
   const formatter = new Intl.NumberFormat('id-ID', {
     style: 'currency',

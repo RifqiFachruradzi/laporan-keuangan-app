@@ -5,7 +5,7 @@ import { useAppContext } from '@/context/AppContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { formatRupiah, calculateNetBalance } from '@/lib/accounting-utils';
+import { formatRupiah, calculateNetBalance, formatAccountNumber } from '@/lib/accounting-utils';
 
 export default function BukuBesarPage() {
   const { accounts, journals } = useAppContext();
@@ -43,7 +43,7 @@ export default function BukuBesarPage() {
             <SelectContent>
               {accounts.map(acc => (
                 <SelectItem key={acc.id} value={acc.id}>
-                  {acc.code} - {acc.name}
+                  {formatAccountNumber(acc)} - {acc.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -54,7 +54,7 @@ export default function BukuBesarPage() {
       {selectedAccount && (
         <Card>
           <CardHeader>
-            <CardTitle>{selectedAccount.code} - {selectedAccount.name} ({selectedAccount.normalBalance} Balance)</CardTitle>
+            <CardTitle>{formatAccountNumber(selectedAccount)} - {selectedAccount.name} ({selectedAccount.normalBalance} Balance)</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>

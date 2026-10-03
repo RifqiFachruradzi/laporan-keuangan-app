@@ -13,6 +13,7 @@ export type JournalType = 'Standard' | 'Adjustment' | 'Elimination';
 export interface Account {
   id: string;
   code: string;
+  subCode?: string;
   name: string;
   type: AccountType;
   subType: string;

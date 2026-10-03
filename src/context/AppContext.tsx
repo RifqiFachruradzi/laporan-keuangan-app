@@ -39,6 +39,9 @@ interface AppContextType {
   isAccountUsed: (id: string) => boolean;
 }
 
+const compareAccounts = (a: Account, b: Account) =>
+  a.code.localeCompare(b.code) || (a.subCode ?? '').localeCompare(b.subCode ?? '');
+
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
@@ -101,13 +104,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const addAccount = (account: Omit<Account, 'id'>) => {
     setAccounts(prev =>
-      [...prev, { ...account, id: uuidv4() }].sort((a, b) => a.code.localeCompare(b.code))
+      [...prev, { ...account, id: uuidv4() }].sort(compareAccounts)
     );
   };
 
   const updateAccount = (id: string, account: Omit<Account, 'id'>) => {
     setAccounts(prev =>
-      prev.map(a => (a.id === id ? { ...account, id } : a)).sort((a, b) => a.code.localeCompare(b.code))
+      prev.map(a => (a.id === id ? { ...account, id } : a)).sort(compareAccounts)
     );
   };
 
