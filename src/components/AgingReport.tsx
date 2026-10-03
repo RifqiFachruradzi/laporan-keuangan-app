@@ -45,7 +45,7 @@ export default function AgingReport({ kind, title }: AgingReportProps) {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-slate-800">{title}</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-slate-900">{title}</h1>
 
       <Card>
         <CardHeader>
@@ -117,7 +117,7 @@ export default function AgingReport({ kind, title }: AgingReportProps) {
             <CardContent>
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-slate-100 hover:bg-slate-100 [&_th]:font-semibold [&_th]:text-slate-700">
+                  <TableRow className="bg-slate-50 hover:bg-slate-50">
                     <TableHead>Tanggal</TableHead>
                     <TableHead>Keterangan</TableHead>
                     <TableHead className="whitespace-normal">Jatuh Tempo</TableHead>

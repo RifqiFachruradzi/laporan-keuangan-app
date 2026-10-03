@@ -22,7 +22,7 @@ export default function NotesPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-slate-800">Catatan Atas Laporan Keuangan (Notes to Financial Statements)</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Catatan Atas Laporan Keuangan (Notes to Financial Statements)</h1>
       
       <Card>
         <CardHeader>

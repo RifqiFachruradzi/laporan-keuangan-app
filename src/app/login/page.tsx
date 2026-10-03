@@ -131,7 +131,7 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <div className="flex min-h-screen w-full">
-      <div className="hidden lg:flex w-1/2 flex-col justify-between bg-slate-900 p-12 text-slate-100">
+      <div className="hidden lg:flex w-1/2 flex-col justify-between bg-slate-950 p-12 text-slate-100">
         <h1 className="text-2xl font-bold leading-tight text-emerald-400">Accounting Management System</h1>
         <div className="space-y-3">
           <p className="text-3xl font-semibold leading-snug">Kelola jurnal, buku besar, dan laporan keuangan dalam satu tempat.</p>

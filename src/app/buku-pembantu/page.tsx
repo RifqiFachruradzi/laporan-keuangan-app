@@ -19,7 +19,7 @@ export default function BukuPembantuPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-slate-800">Buku Pembantu (Subsidiary Ledger)</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Buku Pembantu (Subsidiary Ledger)</h1>
       <p className="text-slate-500">Note: This is a simplified mockup as subsidiary ledgers require detailed customer/vendor tracking per journal entry line.</p>
       
       <Card>

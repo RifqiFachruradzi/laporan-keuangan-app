@@ -19,7 +19,7 @@ export default function NeracaLajurPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-slate-800">Neraca Lajur (Worksheet)</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Neraca Lajur (Worksheet)</h1>
       
       <Card className="overflow-hidden">
         <CardHeader>

@@ -52,7 +52,7 @@ export default function NeracaPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-slate-800">Laporan Neraca (Balance Sheet)</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Laporan Neraca (Balance Sheet)</h1>
       
       <Card className="max-w-4xl">
         <CardHeader>
