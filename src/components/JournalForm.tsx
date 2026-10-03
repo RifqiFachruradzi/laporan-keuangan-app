@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trash2, Plus } from 'lucide-react';
 import { JournalType, JournalEntryLine } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
-import { formatAccountLabel } from '@/lib/accounting-utils';
+import { formatAccountLabel, formatAccountName, formatAccountNumber } from '@/lib/accounting-utils';
 
 interface JournalFormProps {
   type: JournalType;
@@ -19,9 +19,13 @@ interface JournalFormProps {
 
 export default function JournalForm({ type, title }: JournalFormProps) {
   const { accounts, addJournal } = useAppContext();
-  const accountLabel = (id: string) => {
+  const accountNumber = (id: string) => {
     const acc = accounts.find(a => a.id === id);
-    return acc ? formatAccountLabel(acc) : '';
+    return acc ? formatAccountNumber(acc) : '';
+  };
+  const accountName = (id: string) => {
+    const acc = accounts.find(a => a.id === id);
+    return acc ? formatAccountName(acc) : '';
   };
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [description, setDescription] = useState('');
@@ -102,7 +106,8 @@ export default function JournalForm({ type, title }: JournalFormProps) {
 
           <div className="space-y-4">
             <div className="grid grid-cols-12 gap-4 text-sm font-medium text-slate-500 px-2">
-              <div className="col-span-6">Account</div>
+              <div className="col-span-2">Account Number</div>
+              <div className="col-span-4">Account Name</div>
               <div className="col-span-2">Debit</div>
               <div className="col-span-2">Credit</div>
               <div className="col-span-2 text-center">Action</div>
@@ -110,19 +115,37 @@ export default function JournalForm({ type, title }: JournalFormProps) {
 
             {lines.map((line, index) => (
               <div key={line.id} className="grid grid-cols-12 gap-4 items-center">
-                <div className="col-span-6">
+                <div className="col-span-2">
                   <Select
                     value={line.accountId}
                     onValueChange={(val) => updateLine(line.id!, 'accountId', val || '')}
-                    itemToStringLabel={(val) => accountLabel(val as string)}
+                    itemToStringLabel={(val) => accountNumber(val as string)}
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select account" />
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Number" />
                     </SelectTrigger>
                     <SelectContent>
                       {accounts.map(acc => (
                         <SelectItem key={acc.id} value={acc.id}>
                           {formatAccountLabel(acc)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="col-span-4">
+                  <Select
+                    value={line.accountId}
+                    onValueChange={(val) => updateLine(line.id!, 'accountId', val || '')}
+                    itemToStringLabel={(val) => accountName(val as string)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select account name" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {accounts.map(acc => (
+                        <SelectItem key={acc.id} value={acc.id}>
+                          {formatAccountName(acc)}
                         </SelectItem>
                       ))}
                     </SelectContent>
