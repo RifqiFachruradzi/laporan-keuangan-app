@@ -33,12 +33,15 @@ interface AppContextType {
   journals: Journal[];
   addJournal: (journal: Omit<Journal, 'id'>) => void;
   deleteJournal: (id: string) => void;
+  addAccount: (account: Omit<Account, 'id'>) => void;
+  deleteAccount: (id: string) => void;
+  isAccountUsed: (id: string) => boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [accounts] = useState<Account[]>(defaultAccounts);
+  const [accounts, setAccounts] = useState<Account[]>(defaultAccounts);
   const [journals, setJournals] = useState<Journal[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -51,6 +54,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         console.error('Failed to parse journals', e);
       }
     }
+    const savedAccounts = localStorage.getItem('accounts');
+    if (savedAccounts) {
+      try {
+        setAccounts(JSON.parse(savedAccounts));
+      } catch (e) {
+        console.error('Failed to parse accounts', e);
+      }
+    }
     setIsLoaded(true);
   }, []);
 
@@ -59,6 +70,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem('journals', JSON.stringify(journals));
     }
   }, [journals, isLoaded]);
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('accounts', JSON.stringify(accounts));
+    }
+  }, [accounts, isLoaded]);
 
   const addJournal = (journal: Omit<Journal, 'id'>) => {
     const newJournal: Journal = {
@@ -73,10 +90,24 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setJournals(prev => prev.filter(j => j.id !== id));
   };
 
+  const addAccount = (account: Omit<Account, 'id'>) => {
+    setAccounts(prev =>
+      [...prev, { ...account, id: uuidv4() }].sort((a, b) => a.code.localeCompare(b.code))
+    );
+  };
+
+  const isAccountUsed = (id: string) =>
+    journals.some(j => j.entries.some(e => e.accountId === id));
+
+  const deleteAccount = (id: string) => {
+    if (isAccountUsed(id)) return;
+    setAccounts(prev => prev.filter(a => a.id !== id));
+  };
+
   if (!isLoaded) return null; // Avoid hydration mismatch
 
   return (
-    <AppContext.Provider value={{ accounts, journals, addJournal, deleteJournal }}>
+    <AppContext.Provider value={{ accounts, journals, addJournal, deleteJournal, addAccount, deleteAccount, isAccountUsed }}>
       {children}
     </AppContext.Provider>
   );

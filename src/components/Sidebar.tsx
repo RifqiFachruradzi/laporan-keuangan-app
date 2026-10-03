@@ -15,12 +15,14 @@ import {
   Wallet, 
   Activity, 
   PieChart, 
-  FileText 
+  FileText,
+  ListTree
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const routes = [
   { name: 'Dashboard', path: '/', icon: LayoutDashboard },
+  { name: 'Chart of Accounts', path: '/coa', icon: ListTree },
   { name: 'Jurnal Entry', path: '/jurnal', icon: BookOpen },
   { name: 'Buku Besar', path: '/buku-besar', icon: Library },
   { name: 'Buku Pembantu', path: '/buku-pembantu', icon: BookMinus },
